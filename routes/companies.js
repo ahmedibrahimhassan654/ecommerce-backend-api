@@ -5,6 +5,7 @@ const {
     updateCompany,
     getCompany,
     getCompanies,
+    getCompanyInRadius,
 } = require( '../controllers/companies' )
 
 //include other resource routes
@@ -16,7 +17,8 @@ const router = express.Router()
 
 //Re-route into other resource routers
 router.use( '/:companyId/branches', branchRouter )
-
+//geocode route
+router.route('/radius/:zipcode/:distance').get(getCompanyInRadius);
 
 router
     .route( '/' )

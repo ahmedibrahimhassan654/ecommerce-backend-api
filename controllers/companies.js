@@ -1,5 +1,6 @@
 const ErrorResponse = require( './../utils/errorRespnse' )   
-const asyncHandler=require('../middleware/async') 
+const asyncHandler = require( '../middleware/async' ) 
+const geocoder=require('../utils/geocoder')
 const Company = require( '../models/company' )
     //@desc  get all companies
     //@route GET /api/v1/companies
@@ -116,3 +117,29 @@ exports.deleteCompany=asyncHandler( async( req, res, next ) =>
    
 }
 )
+
+// @desc      Get bootcamps within a radius
+// @route     GET /api/v1/bootcamps/radius/:zipcode/:distance
+// @access    Private
+exports.getCompanyInRadius = asyncHandler(async (req, res, next) => {
+    const { zipcode, distance } = req.params;
+  
+    // Get lat/lng from geocoder
+    const loc = await geocoder.geocode(zipcode);
+    const lat = loc[0].latitude;
+    const lng = loc[0].longitude;
+  
+    // Calc radius using radians
+    // Divide dist by radius of Earth
+    // Earth Radius = 3,963 mi / 6,378 km
+    const radius = distance / 6378;
+    const companies = await Company.find({
+      location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+    });
+  
+    res.status(200).json({
+      success: true,
+      count: companies.length,
+      data: companies
+    });
+  });
