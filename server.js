@@ -3,7 +3,7 @@ const dotenv = require( "dotenv" )
 const morgan = require( 'morgan' )
 const errorHandler=require('./middleware/error')
 const colors = require( 'colors' )
-
+const cookieParser=require('cookie-parser')
 
 const connectDB=require('./config/db')
 
@@ -24,17 +24,20 @@ connectDB()
 //route files
 const companies=require('./routes/companies')
 
-const branches=require('./routes/branches')
+const branches = require( './routes/branches' )
+
+const auth=require('./routes/auth')
 
 
 
 const app = express()
 
 
-
+//body parser
 app.use( express.json() );
 
-
+//cookie parser
+app.use(cookieParser())
 
 //dev logging middleware
 if ( process.env.NODE_ENV === 'development' )
@@ -47,6 +50,7 @@ if ( process.env.NODE_ENV === 'development' )
 //mount routers
 app.use( '/api/v1/companies', companies )
 app.use( '/api/v1/branches', branches )
+app.use( '/api/v1/auth', auth )
 
 app.use(errorHandler);
 
